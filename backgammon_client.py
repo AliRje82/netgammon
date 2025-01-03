@@ -11,7 +11,7 @@ from bgp_client import BGPClient
 
 
 class BackgammonGameClient:
-    def __init__(self, game):
+    def __init__(self, game, connect_to, host, port):
         self.frame_rate = config.FRAME_RATE
         self.surface = pygame.display.set_mode(
             (config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
@@ -20,13 +20,14 @@ class BackgammonGameClient:
         pygame.display.set_caption(config.CAPTION)
         self.clock = pygame.time.Clock()
         self.state = state.LockState(self)
-        self.bgp = BGPClient((config.HOST, config.PORT))
+        self.bgp = BGPClient(connect_to, host, port)
         self.network_game_color = None
         self.local_button = None
         self.network_button = None
         self.state_button = None
         self.game = game
         self.world = self._create_world()
+        self.is_connected = False
 
     def run(self):
         while True:
@@ -140,6 +141,7 @@ class BackgammonGameClient:
             )
 
     def _create_menu_buttons(self, world):
+        self.is_connected = True
         self.local_button = world.create_entity(
             c.Render(
                 config.MENU_BUTTON_IMAGES[g.LOCAL],
