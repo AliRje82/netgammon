@@ -1,2 +1,3 @@
-ecys==2.1.0
-pygame==1.9.6
+ecys
+pygame
+pycryptodome

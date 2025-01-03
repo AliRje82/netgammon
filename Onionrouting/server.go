@@ -78,9 +78,13 @@ func connection(conn net.Conn, g *models.Graph) {
 	for {
 		matched := <-node.Indx
 		g.Match.RLock()
-		fmt.Println("Found a match indx", matched)
 		message := matched.Username + "," + matched.Ip
-		conn.Write([]byte(message))
+		fmt.Println("Found a match indx", message)
+		m, err := myNet.MakePkt([]byte(message))
+		if err != nil {
+			fmt.Println("Something happend")
+		}
+		conn.Write(m)
 
 		me, err := myNet.ReciveMessage(conn)
 		message = string(me)

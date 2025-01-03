@@ -10,6 +10,7 @@ import component as c
 import graphic as g
 
 
+
 class State:
     def __init__(self, client):
         self.client = client
@@ -136,6 +137,7 @@ class SearchingOpponentState(LockState):
     def start_local_game(self):
         self.client.bgp.close()
         super().start_local_game()
+         
 
     def start_network_game(self):
         pass
@@ -148,18 +150,19 @@ class SearchingOpponentState(LockState):
 
     def handle_received(self):
         try:
-            message = self.client.bgp.receive()
-            if message['command'] == 'COLOR':
-                self.client.network_game_color = message['arg']
-                self.client.restart()
-                if self.client.network_game_color == color.WHITE:
-                    roll = backgammon.Roll()
-                    self.client.game.roll_dice(roll)
-                    self.client.bgp.send_dies(roll.die1, roll.die2)
-                self.client.state = ViewNetworkColorState(self.client)
+            message = self.client.bgp.recive_server()
+            print("Got a message from server!")
+            parts = message.split(',')
+            username = parts[0]
+            ip = parts[1]
+            print(f"Found a match {username} {ip}")
+            self.client.oppenet_user = username
+            self.client.oppenet_ip = ip 
+            self.client.send_accept()              
         except socket.timeout as e:
             raise e
-        except (socket.error, ConnectionError):
+        except (socket.error, ConnectionError) as e:
+            print(e)
             self.client.state = DisconnectedState(self.client)
 
     def close_window(self):

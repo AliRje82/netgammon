@@ -3,7 +3,7 @@ from functools import lru_cache
 
 import pygame
 import ecys
-
+import backgammon_client
 import backgammon
 import config
 import color
@@ -22,6 +22,28 @@ class NetworkSystem(ecys.System):
         except socket.timeout:
             pass
 
+
+# class ServerNetwork(ecys.System):
+#     def __init__(self, client):
+#         super().__init__()
+#         self.client = client
+
+#     def update(self):
+#         if not self.client.bgp.isConnected : return
+#         try:
+#             message = self.client.bgp.recive_server()
+
+#             if self.client.bgp.isPlaying:
+#                 message = message.split(',')
+#                 print(f"Dice : {message}")
+#             else:
+                
+#                 parts = message.split(',')
+#                 username = parts[0]
+#                 ip = parts[1]
+#                 print(f"Found a match {username} {ip}")
+#         except socket.timeout:
+#             pass
 
 @ecys.requires(c.Render, c.Die)
 class ArrangeDiesSystem(ecys.System):
@@ -150,6 +172,7 @@ class InputSystem(ecys.System):
     def __init__(self, client):
         super().__init__()
         self.client = client
+        self.font = pygame.font.Font(None, 36)
 
     def update(self):
         for event in pygame.event.get():
@@ -161,6 +184,7 @@ class InputSystem(ecys.System):
             self._handle_start_network_game(event)
             self._handle_save_history(event)
             self._handle_pause(event)
+            self._handle_y_n_input(event)
 
     @staticmethod
     def _button_clicked(event):
@@ -253,6 +277,14 @@ class InputSystem(ecys.System):
     def _handle_pause(self, event):
         if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
             self.client.state.pause()
+    def _handle_y_n_input(self, event):
+        if self.client.isFound:
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_y:
+                    self.client.accept=False
+                    self.client.isFound=False
+                elif event.key == pygame.K_n:
+                    self.client.accept = True
 
 
 class StateViewSystem(ecys.System):
